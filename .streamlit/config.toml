@@ -1,0 +1,2 @@
+[server]
+folderWatchBlacklist = ["Fluidez_Verbal", "__pycache__"]
