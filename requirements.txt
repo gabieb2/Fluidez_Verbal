@@ -3,3 +3,6 @@ librosa
 whisper
 audiofile
 ffmpeg 
+pydub
+ffmpeg-python
+soundfile
