@@ -1,16 +1,9 @@
 import streamlit as st
-import sys
-import subprocess
-import librosa
-import whisper
-import io
-import streamlit as st
-import whisper
-import librosa
-import io
-import subprocess
-import os
 import tempfile
+import subprocess
+import librosa
+import whisper
+import audiofile as af
 
 def procesar_audio(audio):
     if audio is None:
@@ -26,37 +19,30 @@ def procesar_audio(audio):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_output:
         wav_path = temp_output.name
 
-    #prueba
-
+    # Convertir el archivo MP3 a WAV usando ffmpeg
     try:
-     subprocess.run([
-        "ffmpeg", "-y", "-i", input_path, wav_path
-     ], check=True)
-     print("✅ Conversión a WAV completada.")
+        subprocess.run(
+            ["ffmpeg", "-y", "-i", input_path, wav_path], check=True
+        )
+        st.success("✅ Conversión a WAV completada.")
     except subprocess.CalledProcessError:
-     print("❌ Error al convertir el archivo a WAV.")
-     sys.exit(1)
+        st.error("❌ Error al convertir el archivo a WAV.")
+        return
 
+    # Cargar el archivo WAV usando librosa
+    try:
+        waveform, sr = librosa.load(wav_path, sr=16000)
+        duration = librosa.get_duration(y=waveform, sr=sr)
+        st.write(f"Duración del archivo: {duration:.2f} segundos")
+    except Exception as e:
+        st.error(f"❌ Error al cargar el archivo WAV: {e}")
+        return
 
-    # Cargar con librosa
-    waveform, sr = librosa.load(wav_path, sr=16000)
-    duration = librosa.get_duration(y=waveform, sr=sr)
-
-    # Transcribir con Whisper
-    model = whisper.load_model("small")
-    result = model.transcribe(wav_path, word_timestamps=True)
-
-    # Mostrar la transcripción
-    transcripcion = ""
-    for segment in result['segments']:
-        for word in segment['words']:
-            transcripcion += f"{word['word']} - start: {word['start']:.2f}s, end: {word['end']:.2f}s\n"
-
-    st.text("Transcripción completada.")
-    st.text(f"Duración del audio: {duration:.2f} segundos")
-    st.text("Transcripción del audio:")
-    st.text(transcripcion)
-
-    # Opcional: limpiar archivos temporales
-    os.remove(input_path)
-    os.remove(wav_path)
+    # Usar el modelo Whisper para la transcripción
+    try:
+        model = whisper.load_model("small")
+        result = model.transcribe(wav_path)
+        st.write("Texto transcrito:")
+        st.write(result['text'])
+    except Exception as e:
+        st.error(f"❌ Error al transcribir el archivo: {e}")
