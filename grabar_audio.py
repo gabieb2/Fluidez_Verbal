@@ -7,7 +7,7 @@ def mostrar_grabacion():
      if audio_grabado:
         st.success("✅ Grabación realizada")
         st.audio(audio_grabado, format="audio/wav")
-        if st.button("Continuar"):
+        if st.button("Continuar",key="continuar_grabar"):
            from procesamiento import procesar_audio
 
            procesar_audio(audio_grabado)

@@ -22,9 +22,21 @@ def procesar_audio(audio):
         tmp.write(audio.read())
         input_path = tmp.name
 
-    # Convertir a WAV (por ejemplo si fuera mp3)
-    wav_path = tempfile.NamedTemporaryFile(delete=False, suffix=".wav").name
-    subprocess.run(["ffmpeg", "-y", "-i", input_path, wav_path], check=True)
+    # Crear otro archivo temporal para el WAV de salida
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_output:
+        wav_path = temp_output.name
+
+    #prueba
+
+    try:
+     subprocess.run([
+        "ffmpeg", "-y", "-i", input_path, wav_path
+     ], check=True)
+     print("✅ Conversión a WAV completada.")
+    except subprocess.CalledProcessError:
+     print("❌ Error al convertir el archivo a WAV.")
+     sys.exit(1)
+
 
     # Cargar con librosa
     waveform, sr = librosa.load(wav_path, sr=16000)
