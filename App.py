@@ -1,4 +1,5 @@
 import streamlit as st
+import ffmpeg
 from cargar_audio import mostrar_carga
 from grabar_audio import mostrar_grabacion
 

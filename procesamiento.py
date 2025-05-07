@@ -3,6 +3,7 @@ import tempfile
 import subprocess
 import librosa
 import whisper
+import ffmpeg
 import audiofile as af
 
 def procesar_audio(audio):
